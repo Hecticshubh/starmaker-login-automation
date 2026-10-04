@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+
 # TC_01: Login page opens
 
 def test_login_page_opens(driver, wait):
@@ -162,11 +163,27 @@ def test_invalid_email_password(driver, wait):
     )
     password.send_keys("WrongPass123")
 
+    # Wait until both fields are visible and contain values
+    wait.until(
+        lambda d: (
+            email.is_displayed()
+            and password.is_displayed()
+            and email.get_attribute("value") == "invalid123@example.com"
+            and password.get_attribute("value") == "WrongPass123"
+        )
+    )
+
+    # Extra wait after entering credentials
+    import time
+    time.sleep(2)
+
+    # Click only when the login button is visible and enabled
     login_button = wait.until(
         EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "button[type='submit']")
         )
     )
+
     login_button.click()
 
     error = wait.until(
@@ -178,7 +195,10 @@ def test_invalid_email_password(driver, wait):
             )
         )
     )
-    assert error.text == "Account is not found. Create one in StarMaker App."
+
+    assert error.text == (
+        "Account is not found. Create one in StarMaker App."
+    )
 
 
 # TC_09: Valid email and wrong password
